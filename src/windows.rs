@@ -3,16 +3,17 @@ use std::net::{TcpListener, UdpSocket};
 
 pub use std::os::windows::io::{RawHandle, RawSocket};
 
+#[derive(Copy, Clone, Debug)]
 pub enum FdType {
     Socket(RawSocket),
     Handle(RawHandle),
 }
 
-pub fn make_tcp_listener(fd: FdType) -> io::Result<TcpListener> {
+pub fn make_tcp_listener(_fd: FdType) -> io::Result<TcpListener> {
     unreachable!()
 }
 
-pub fn make_udp_socket(fd: FdType) -> io::Result<UdpSocket> {
+pub fn make_udp_socket(_fd: FdType) -> io::Result<UdpSocket> {
     unreachable!()
 }
 

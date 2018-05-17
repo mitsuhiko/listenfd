@@ -86,12 +86,14 @@ impl ListenFdManager {
     /// the fd at that position is not a tcp socket then an error is
     /// returned and the fd is left at its place.
     pub fn take_udp_socket(&mut self, idx: usize) -> io::Result<Option<UdpSocket>> {
+        let _idx = idx;
         self.with_fd(idx, imp::make_udp_socket)
     }
 
     /// Takes the `RawFd` on unix platforms.
     #[cfg(not(windows))]
     pub fn take_raw_fd(&mut self, idx: usize) -> io::Result<Option<imp::FdType>> {
+        let _idx = idx;
         self.with_fd(idx, |fd| Ok(fd))
     }
 
@@ -100,6 +102,7 @@ impl ListenFdManager {
     /// This will error if the fd at this position is not a socket (but a handle).
     #[cfg(windows)]
     pub fn take_raw_socket(&mut self, idx: usize) -> io::Result<Option<imp::RawSocket>> {
+        let _idx = idx;
         Ok(None)
     }
 
@@ -108,6 +111,7 @@ impl ListenFdManager {
     /// This will error if the fd at this position is not a handle.
     #[cfg(windows)]
     pub fn take_raw_handle(&mut self, idx: usize) -> io::Result<Option<imp::RawHandle>> {
+        let _idx = idx;
         Ok(None)
     }
 }
