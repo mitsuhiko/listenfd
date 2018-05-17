@@ -43,8 +43,9 @@ fn validate_socket(
                 mem::transmute(&mut ty),
                 &mut ty_len,
             ) == 0 && ty == sock_type
-            && (sockaddr.sa_family == sock_fam as u8
-                || (sockaddr.sa_family == libc::AF_INET6 as u8 && sock_fam == libc::AF_INET))
+            && (sockaddr.sa_family as libc::c_int == sock_fam
+                || (sockaddr.sa_family as libc::c_int == libc::AF_INET6
+                    && sock_fam == libc::AF_INET))
     };
 
     if !is_valid {
