@@ -41,7 +41,7 @@
 //! catflap -p 3000 -- cargo watch -x run
 //! ```
 //!
-//! How catflap will open the socket and keep it open.  cargo watch will
+//! Now catflap will open the socket and keep it open.  cargo watch will
 //! recompile the code on demand and the server will pick up the socket
 //! that catflap opened.  No more connection resets.
 #[cfg(not(windows))]
