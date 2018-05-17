@@ -11,29 +11,29 @@ use unix as imp;
 use windows as imp;
 
 /// A helper object that gives access to raw file descriptors.
-pub struct ListenFdManager {
+pub struct ListenFd {
     fds: Vec<Option<imp::FdType>>,
 }
 
-impl ListenFdManager {
-    /// Creates the fd manager from the environment.
-    pub fn from_env() -> ListenFdManager {
-        ListenFdManager {
+impl ListenFd {
+    /// Creates the listenfd manager object from the environment.
+    pub fn from_env() -> ListenFd {
+        ListenFd {
             fds: imp::get_fds().into_iter().map(Some).collect(),
         }
     }
 
-    /// Creates an empty fd manager.
+    /// Creates an empty listenfd object.
     ///
     /// This is helpful when the ability to work with external file
     /// descriptors should be disabled in certain code paths.  This
-    /// way the functions on the manager will just never return
+    /// way the functions on the object will just never return
     /// sockets.
-    pub fn empty() -> ListenFdManager {
-        ListenFdManager { fds: vec![] }
+    pub fn empty() -> ListenFd {
+        ListenFd { fds: vec![] }
     }
 
-    /// Returns the number of fds in the manager.
+    /// Returns the number of fds in the manager object.
     ///
     /// Note that even if fds are taken out of the manager this count
     /// does not change.
