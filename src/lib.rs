@@ -2,9 +2,14 @@
 //! managed and passed file descriptors.  This lets you work with systems
 //! that support socket activation or similar.
 //!
-//! Currently this supports `systemd` and `catflap` on unix only.  `catflap`
-//! is very convenient in combination with cargo-watch for development
-//! purposes whereas `systemd` is useful for production deployments on linux.
+//! Currently this supports `systemd` and unix only.  If you want to use
+//! this for development you can use the [systemfd](https://github.com/mitsuhiko/systemfd)
+//! utility which implements the systemd protocol.
+//!
+//! This library uses an extension to the systemd protocol where if the
+//! `LISTEN_PID` variable is not set or empty, the check for the pid is
+//! removed.  This is useful when binaries are proxied in between like
+//! cargo-watch.
 //!
 //! ## Example
 //!
@@ -34,16 +39,19 @@
 //! # Ok(()) }
 //! ```
 //!
-//! You can then use this with cargo watch and catflap:
+//! You can then use this with cargo watch and systemfd:
 //!
 //! ```plain
-//! $ cargo install catflap cargo-watch
-//! catflap -p 3000 -- cargo watch -x run
+//! $ cargo install systemfd cargo-watch
+//! systemfd --no-pid -s 3000 -- cargo watch -x run
 //! ```
 //!
-//! Now catflap will open the socket and keep it open.  cargo watch will
+//! Now systemfd will open the socket and keep it open.  cargo watch will
 //! recompile the code on demand and the server will pick up the socket
-//! that catflap opened.  No more connection resets.
+//! that systemfd opened.  No more connection resets.
+//!
+//! The `--no-pid` flag is necessary to ensure that the `LISTEN_PID` environment
+//! variable is not set or the socket passing will be prevented by the pid check.
 #[cfg(not(windows))]
 extern crate libc;
 

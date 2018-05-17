@@ -74,20 +74,19 @@ pub fn make_udp_socket(fd: FdType) -> io::Result<UdpSocket> {
 }
 
 pub fn get_fds() -> Vec<FdType> {
-    // catflap
-    if let Some(fd) = env::var("LISTEN_FD").ok().and_then(|fd| fd.parse().ok()) {
-        return vec![fd];
-    }
+    // modified systemd protocol
+    if let Some(count) = env::var("LISTEN_FDS").ok().and_then(|x| x.parse().ok()) {
+        let ok = match env::var("LISTEN_PID").as_ref().map(|x| x.as_str()) {
+            Err(env::VarError::NotPresent) | Ok("") => true,
+            Ok(val) if val.parse().ok() == Some(unsafe { libc::getpid() }) => true,
+            _ => false,
+        };
 
-    // systemd
-    if env::var("LISTEN_PID").ok().and_then(|x| x.parse().ok()) == Some(unsafe { libc::getpid() }) {
-        let count: Option<usize> = env::var("LISTEN_FDS").ok().and_then(|x| x.parse().ok());
         env::remove_var("LISTEN_PID");
         env::remove_var("LISTEN_FDS");
-        if let Some(count) = count {
+        if ok {
             return (0..count).map(|offset| 3 + offset as FdType).collect();
         }
     }
-
     vec![]
 }
