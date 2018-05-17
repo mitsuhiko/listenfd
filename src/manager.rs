@@ -107,7 +107,7 @@ impl ListenFdManager {
     ///
     /// This will error if the fd at this position is not a handle.
     #[cfg(windows)]
-    pub fn take_raw_socket(&mut self, idx: usize) -> io::Result<Option<imp::RawHandle>> {
+    pub fn take_raw_handle(&mut self, idx: usize) -> io::Result<Option<imp::RawHandle>> {
         Ok(None)
     }
 }
