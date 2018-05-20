@@ -19,12 +19,10 @@ impl ListenFd {
     /// Creates the listenfd manager object from the environment.
     pub fn from_env() -> ListenFd {
         match imp::get_fds() {
-            Some(fds) => {
-                ListenFd {
-                    fds: fds.into_iter().map(Some).collect(),
-                }
-            }
-            None => ListenFd::empty()
+            Some(fds) => ListenFd {
+                fds: fds.into_iter().map(Some).collect(),
+            },
+            None => ListenFd::empty(),
         }
     }
 

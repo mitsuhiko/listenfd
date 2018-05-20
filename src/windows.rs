@@ -1,15 +1,15 @@
+use std::env;
 use std::io::{self, Read, Write};
 use std::mem;
-use std::env;
-use std::net::{TcpListener, TcpStream, UdpSocket, SocketAddr, Shutdown};
+use std::net::{Shutdown, SocketAddr, TcpListener, TcpStream, UdpSocket};
 
 use uuid::Uuid;
 
-pub use std::os::windows::io::{RawSocket, FromRawSocket};
-use winapi::um::winsock2::{WSASocketW, WSAPROTOCOL_INFOW, FROM_PROTOCOL_INFO, WSA_FLAG_OVERLAPPED};
-use winapi::ctypes::{c_void, c_uint, c_ulong};
-use winapi::um::processthreadsapi::GetCurrentProcessId;
+pub use std::os::windows::io::{FromRawSocket, RawSocket};
+use winapi::ctypes::{c_uint, c_ulong, c_void};
 use winapi::shared::ntdef::{HANDLE, NTSTATUS};
+use winapi::um::processthreadsapi::GetCurrentProcessId;
+use winapi::um::winsock2::{WSASocketW, FROM_PROTOCOL_INFO, WSAPROTOCOL_INFOW, WSA_FLAG_OVERLAPPED};
 
 pub use self::RawSocket as FdType;
 
@@ -36,11 +36,13 @@ pub struct FILE_INFORMATION {
 #[link(name = "ntdll")]
 extern "system" {
     #[link_name = "NtSetInformationFile"]
-    fn NtSetInformationFile(file_handle: HANDLE,
-                            block: *mut IO_STATUS_BLOCK,
-                            file_info: *mut FILE_INFORMATION,
-                            len: c_ulong,
-                            cls: c_uint) -> NTSTATUS;
+    fn NtSetInformationFile(
+        file_handle: HANDLE,
+        block: *mut IO_STATUS_BLOCK,
+        file_info: *mut FILE_INFORMATION,
+        len: c_ulong,
+        cls: c_uint,
+    ) -> NTSTATUS;
 }
 
 /// This detaches a socket from IOCP.
@@ -54,18 +56,22 @@ unsafe fn detach_from_iocp(sock: FdType) {
     let mut file_info: FILE_INFORMATION = mem::zeroed();
 
     // FileReplaceCompletionInformation
-    NtSetInformationFile(sock as HANDLE,
-                         &mut status_block,
-                         &mut file_info,
-                         mem::size_of::<FILE_INFORMATION>() as c_ulong,
-                         61);
+    NtSetInformationFile(
+        sock as HANDLE,
+        &mut status_block,
+        &mut file_info,
+        mem::size_of::<FILE_INFORMATION>() as c_ulong,
+        61,
+    );
 }
 
 pub fn get_fds() -> Option<Vec<FdType>> {
     let addr: SocketAddr = env::var("SYSTEMFD_SOCKET_SERVER")
-        .ok().and_then(|x| x.parse().ok())?;
+        .ok()
+        .and_then(|x| x.parse().ok())?;
     let secret: Uuid = env::var("SYSTEMFD_SOCKET_SECRET")
-        .ok().and_then(|x| x.parse().ok())?;
+        .ok()
+        .and_then(|x| x.parse().ok())?;
 
     env::remove_var("SYSTEMFD_SOCKET_SERVER");
     env::remove_var("SYSTEMFD_SOCKET_SECRET");
@@ -75,7 +81,9 @@ pub fn get_fds() -> Option<Vec<FdType>> {
 
     let mut listener = TcpStream::connect(addr).ok()?;
     let pid = unsafe { GetCurrentProcessId() };
-    listener.write_all(format!("{}|{}", secret, pid).as_bytes()).ok()?;
+    listener
+        .write_all(format!("{}|{}", secret, pid).as_bytes())
+        .ok()?;
     listener.shutdown(Shutdown::Write).ok()?;
     listener.read_to_end(&mut data).ok()?;
 
@@ -84,16 +92,17 @@ pub fn get_fds() -> Option<Vec<FdType>> {
 
     for idx in 0..items {
         let offset = idx * proto_len;
-        let proto_info: &mut WSAPROTOCOL_INFOW = unsafe {
-            mem::transmute(data[offset..offset + proto_len].as_ptr())
-        };
+        let proto_info: &mut WSAPROTOCOL_INFOW =
+            unsafe { mem::transmute(data[offset..offset + proto_len].as_ptr()) };
         unsafe {
-            let sock = WSASocketW(FROM_PROTOCOL_INFO,
-                                  FROM_PROTOCOL_INFO,
-                                  FROM_PROTOCOL_INFO,
-                                  proto_info,
-                                  0,
-                                  WSA_FLAG_OVERLAPPED) as FdType;
+            let sock = WSASocketW(
+                FROM_PROTOCOL_INFO,
+                FROM_PROTOCOL_INFO,
+                FROM_PROTOCOL_INFO,
+                proto_info,
+                0,
+                WSA_FLAG_OVERLAPPED,
+            ) as FdType;
             if sock == 0 {
                 return None;
             }
