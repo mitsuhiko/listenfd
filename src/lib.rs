@@ -54,6 +54,10 @@
 //! variable is not set or the socket passing will be prevented by the pid check.
 #[cfg(not(windows))]
 extern crate libc;
+#[cfg(windows)]
+extern crate uuid;
+#[cfg(windows)]
+extern crate winapi;
 
 #[cfg(not(windows))]
 mod unix;

@@ -73,7 +73,7 @@ pub fn make_udp_socket(fd: FdType) -> io::Result<UdpSocket> {
         .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
 }
 
-pub fn get_fds() -> Vec<FdType> {
+pub fn get_fds() -> Option<Vec<FdType>> {
     // modified systemd protocol
     if let Some(count) = env::var("LISTEN_FDS").ok().and_then(|x| x.parse().ok()) {
         let ok = match env::var("LISTEN_PID").as_ref().map(|x| x.as_str()) {
@@ -85,8 +85,9 @@ pub fn get_fds() -> Vec<FdType> {
         env::remove_var("LISTEN_PID");
         env::remove_var("LISTEN_FDS");
         if ok {
-            return (0..count).map(|offset| 3 + offset as FdType).collect();
+            return Some((0..count).map(|offset| 3 + offset as FdType).collect());
         }
     }
-    vec![]
+
+    None
 }

@@ -18,8 +18,13 @@ pub struct ListenFd {
 impl ListenFd {
     /// Creates the listenfd manager object from the environment.
     pub fn from_env() -> ListenFd {
-        ListenFd {
-            fds: imp::get_fds().into_iter().map(Some).collect(),
+        match imp::get_fds() {
+            Some(fds) => {
+                ListenFd {
+                    fds: fds.into_iter().map(Some).collect(),
+                }
+            }
+            None => ListenFd::empty()
         }
     }
 
@@ -102,15 +107,6 @@ impl ListenFd {
     /// This will error if the fd at this position is not a socket (but a handle).
     #[cfg(windows)]
     pub fn take_raw_socket(&mut self, idx: usize) -> io::Result<Option<imp::RawSocket>> {
-        let _idx = idx;
-        Ok(None)
-    }
-
-    /// Takes the `RawHandle` on windows platforms.
-    ///
-    /// This will error if the fd at this position is not a handle.
-    #[cfg(windows)]
-    pub fn take_raw_handle(&mut self, idx: usize) -> io::Result<Option<imp::RawHandle>> {
         let _idx = idx;
         Ok(None)
     }
