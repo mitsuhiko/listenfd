@@ -29,17 +29,13 @@ server = if let Some(listener) = manager.take_tcp_listener(0)? {
 };
 ```
 
-You can then use this with cargo watch and catflap:
+You can then use this with cargo watch and systemfd:
 
 ```
-$ cargo install catflap cargo-watch
-catflap -p 3000 -- cargo watch -x run
+$ cargo install systemfd cargo-watch
+systemfd --no-pd -p 3000 -- cargo watch -x run
 ```
 
-Now catflap will open the socket and keep it open. cargo watch will recompile
-the code on demand and the server will pick up the socket that catflap opened.
+Now systemfd will open the socket and keep it open. cargo watch will recompile
+the code on demand and the server will pick up the socket that systemfd opened.
 No more connection resets.
-
-## License
-
-Symbolic is licensed under the Apache 2 license.
