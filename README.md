@@ -22,7 +22,7 @@ let mut server = make_a_server();
 
 // if we are given a tcp listener on listen fd 0, we use that one
 server = if let Some(listener) = manager.take_tcp_listener(0)? {
-    server.listener(listener)
+    server.listen(listener)
 // otherwise fall back to local listening
 } else {
     server.bind("127.0.0.1:3000")?

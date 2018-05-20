@@ -2,14 +2,15 @@
 //! managed and passed file descriptors.  This lets you work with systems
 //! that support socket activation or similar.
 //!
-//! Currently this supports `systemd` and unix only.  If you want to use
-//! this for development you can use the [systemfd](https://github.com/mitsuhiko/systemfd)
-//! utility which implements the systemd protocol.
+//! Currently this supports a slightly modified systemd protocl on unix and
+//! a custom protocol on Windows.  If you want to use this for development
+//! you can use the [systemfd](https://github.com/mitsuhiko/systemfd)
+//! utility which implements both those protocols.
 //!
-//! This library uses an extension to the systemd protocol where if the
-//! `LISTEN_PID` variable is not set or empty, the check for the pid is
-//! removed.  This is useful when binaries are proxied in between like
-//! cargo-watch.
+//! The systemd extension is that if the `LISTEN_PID` variable is not set or
+//! empty, the check for the pid is removed.  This is useful when binaries
+//! are proxied in between like cargo-watch.  For the windows protocol
+//! have a look at the systemfd documentation.
 //!
 //! ## Example
 //!
@@ -31,7 +32,7 @@
 //!
 //! // if we are given a tcp listener on listen fd 0, we use that one
 //! server = if let Some(listener) = listenfd.take_tcp_listener(0)? {
-//!     server.listener(listener)
+//!     server.listen(listener)
 //! // otherwise fall back to local listening
 //! } else {
 //!     server.bind("127.0.0.1:3000")?
