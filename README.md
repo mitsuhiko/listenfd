@@ -33,7 +33,7 @@ You can then use this with cargo watch and systemfd:
 
 ```
 $ cargo install systemfd cargo-watch
-systemfd --no-pd -p 3000 -- cargo watch -x run
+systemfd --no-pid -p 3000 -- cargo watch -x run
 ```
 
 Now systemfd will open the socket and keep it open. cargo watch will recompile
