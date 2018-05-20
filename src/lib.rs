@@ -20,7 +20,7 @@
 //! # use std::io;
 //! # struct Server;
 //! # impl Server {
-//! #   fn listener<X>(self, _: X) -> Self { self }
+//! #   fn listen<X>(self, _: X) -> Self { self }
 //! #   fn bind<X>(self, _: X) -> io::Result<Self> { Ok(self) }
 //! # }
 //! # fn make_a_server() -> Server { Server };
