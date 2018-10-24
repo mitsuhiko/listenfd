@@ -9,7 +9,9 @@ pub use std::os::windows::io::{FromRawSocket, RawSocket};
 use winapi::ctypes::{c_uint, c_ulong, c_void};
 use winapi::shared::ntdef::{HANDLE, NTSTATUS};
 use winapi::um::processthreadsapi::GetCurrentProcessId;
-use winapi::um::winsock2::{WSASocketW, FROM_PROTOCOL_INFO, WSAPROTOCOL_INFOW, WSA_FLAG_OVERLAPPED};
+use winapi::um::winsock2::{
+    WSASocketW, FROM_PROTOCOL_INFO, WSAPROTOCOL_INFOW, WSA_FLAG_OVERLAPPED,
+};
 
 pub use self::RawSocket as FdType;
 

@@ -9,6 +9,7 @@ cargotest:
 	@cargo test
 
 format-check:
-	@cargo fmt -- --write-mode diff
+	@rustup component add rustfmt-preview 2> /dev/null
+	@cargo fmt -- --check
 
 .PHONY: all doc test cargotest format-check
