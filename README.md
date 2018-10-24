@@ -16,13 +16,13 @@ purposes whereas systemd is useful for production deployments on linux.
 
 ```rust
 extern crate listenfd;
-use listenfd::ListenFdManager;
+use listenfd::ListenFd;
 
-let mut manager = ListenFdManager::from_env();
+let mut listenfd = ListenFd::from_env();
 let mut server = make_a_server();
 
 // if we are given a tcp listener on listen fd 0, we use that one
-server = if let Some(listener) = manager.take_tcp_listener(0)? {
+server = if let Some(listener) = listenfd.take_tcp_listener(0)? {
     server.listen(listener)
 // otherwise fall back to local listening
 } else {
