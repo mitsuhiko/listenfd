@@ -51,7 +51,7 @@ impl ListenFd {
     ) -> io::Result<Option<R>> {
         let bucket = match self.fds.get_mut(idx) {
             Some(None) | None => return Ok(None),
-            Some(mut bucket) => bucket,
+            Some(bucket) => bucket,
         };
         f(*bucket.as_ref().unwrap()).map(|rv| {
             bucket.take();
