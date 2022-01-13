@@ -15,11 +15,11 @@ use winapi::um::winsock2::{
 
 pub use self::RawSocket as FdType;
 
-pub fn make_tcp_listener(fd: FdType) -> io::Result<TcpListener> {
+pub fn make_tcp_listener(fd: FdType) -> Result<TcpListener, (io::Error, FdType)> {
     Ok(unsafe { FromRawSocket::from_raw_socket(fd) })
 }
 
-pub fn make_udp_socket(fd: FdType) -> io::Result<UdpSocket> {
+pub fn make_udp_socket(fd: FdType) -> Result<UdpSocket, (io::Error, FdType)> {
     Ok(unsafe { FromRawSocket::from_raw_socket(fd) })
 }
 

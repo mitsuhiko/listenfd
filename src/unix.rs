@@ -1,77 +1,68 @@
+use rustix::fd::{FromFd, OwnedFd};
+use rustix::fs::FileType;
+use rustix::net::{AddressFamily, SocketType};
 use std::env;
 use std::io;
-use std::mem;
 use std::net::{TcpListener, UdpSocket};
-use std::os::unix::io::{FromRawFd, RawFd};
+use std::os::unix::io::FromRawFd;
 use std::os::unix::net::UnixListener;
 
-use libc;
+pub type FdType = OwnedFd;
 
-pub type FdType = RawFd;
-
-fn is_sock(fd: FdType) -> bool {
-    unsafe {
-        let mut stat: libc::stat = mem::zeroed();
-        libc::fstat(fd as libc::c_int, &mut stat);
-        (stat.st_mode & libc::S_IFMT) == libc::S_IFSOCK
-    }
+fn is_sock(fd: &FdType) -> bool {
+    rustix::fs::fstat(fd)
+        .map(|stat| FileType::from_raw_mode(stat.st_mode) == FileType::Socket)
+        .unwrap_or(false)
 }
 
 fn validate_socket(
     fd: FdType,
-    sock_fam: libc::c_int,
-    sock_type: libc::c_int,
+    sock_fam: AddressFamily,
+    sock_type: SocketType,
     hint: &str,
-) -> io::Result<FdType> {
-    if !is_sock(fd) {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            format!("fd {} is not a socket", fd),
+) -> Result<FdType, (io::Error, FdType)> {
+    if !is_sock(&fd) {
+        return Err((
+            io::Error::new(
+                io::ErrorKind::InvalidInput,
+                format!("fd {:?} is not a socket", fd),
+            ),
+            fd,
         ));
     }
 
-    let is_valid = unsafe {
-        let mut ty: libc::c_int = mem::zeroed();
-        let mut ty_len = mem::size_of_val(&ty) as libc::c_uint;
-        let mut sockaddr: libc::sockaddr = mem::zeroed();
-        let mut sockaddr_len = mem::size_of_val(&sockaddr) as libc::c_uint;
-        libc::getsockname(fd, &mut sockaddr, &mut sockaddr_len) == 0
-            && libc::getsockopt(
-                fd,
-                libc::SOL_SOCKET,
-                libc::SO_TYPE,
-                mem::transmute(&mut ty),
-                &mut ty_len,
-            ) == 0
-            && ty == sock_type
-            && (sockaddr.sa_family as libc::c_int == sock_fam
-                || (sockaddr.sa_family as libc::c_int == libc::AF_INET6
-                    && sock_fam == libc::AF_INET))
-    };
+    let is_valid = rustix::net::getsockname(&fd)
+        .map(|sockaddr| {
+            rustix::net::sockopt::get_socket_type(&fd) == Ok(sock_type)
+                && (sockaddr.address_family() == sock_fam
+                    || (sockaddr.address_family() == AddressFamily::INET6
+                        && sock_fam == AddressFamily::INET))
+        })
+        .unwrap_or(false);
 
     if !is_valid {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            format!("fd {} is not a valid {}", fd, hint),
+        return Err((
+            io::Error::new(
+                io::ErrorKind::InvalidInput,
+                format!("fd {:?} is not a valid {}", fd, hint),
+            ),
+            fd,
         ));
     }
 
     Ok(fd)
 }
 
-pub fn make_tcp_listener(fd: FdType) -> io::Result<TcpListener> {
-    validate_socket(fd, libc::AF_INET, libc::SOCK_STREAM, "tcp socket")
-        .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
+pub fn make_tcp_listener(fd: FdType) -> Result<TcpListener, (io::Error, FdType)> {
+    validate_socket(fd, AddressFamily::INET, SocketType::STREAM, "tcp socket").map(FromFd::from_fd)
 }
 
-pub fn make_unix_listener(fd: FdType) -> io::Result<UnixListener> {
-    validate_socket(fd, libc::AF_UNIX, libc::SOCK_STREAM, "unix socket")
-        .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
+pub fn make_unix_listener(fd: FdType) -> Result<UnixListener, (io::Error, FdType)> {
+    validate_socket(fd, AddressFamily::UNIX, SocketType::STREAM, "unix socket").map(FromFd::from_fd)
 }
 
-pub fn make_udp_socket(fd: FdType) -> io::Result<UdpSocket> {
-    validate_socket(fd, libc::AF_INET, libc::SOCK_DGRAM, "udp socket")
-        .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
+pub fn make_udp_socket(fd: FdType) -> Result<UdpSocket, (io::Error, FdType)> {
+    validate_socket(fd, AddressFamily::INET, SocketType::DGRAM, "udp socket").map(FromFd::from_fd)
 }
 
 pub fn get_fds() -> Option<Vec<FdType>> {
@@ -79,14 +70,18 @@ pub fn get_fds() -> Option<Vec<FdType>> {
     if let Some(count) = env::var("LISTEN_FDS").ok().and_then(|x| x.parse().ok()) {
         let ok = match env::var("LISTEN_PID").as_ref().map(|x| x.as_str()) {
             Err(env::VarError::NotPresent) | Ok("") => true,
-            Ok(val) if val.parse().ok() == Some(unsafe { libc::getpid() }) => true,
+            Ok(val) if val.parse().ok() == Some(rustix::process::getpid().as_raw_nonzero()) => true,
             _ => false,
         };
 
         env::remove_var("LISTEN_PID");
         env::remove_var("LISTEN_FDS");
         if ok {
-            return Some((0..count).map(|offset| 3 + offset as FdType).collect());
+            return Some(
+                (0..count)
+                    .map(|offset| unsafe { OwnedFd::from_raw_fd(3 + offset) })
+                    .collect(),
+            );
         }
     }
 
