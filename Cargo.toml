@@ -7,6 +7,7 @@ keywords = ["socket", "listenfd", "systemd", "socketactivation"]
 homepage = "https://github.com/mitsuhiko/rust-listenfd"
 readme = "README.md"
 license = "MIT/Apache-2.0"
+edition = "2018"
 
 [target."cfg(not(windows))".dependencies]
 rustix = "0.31.3"

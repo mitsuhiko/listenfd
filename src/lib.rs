@@ -53,12 +53,6 @@
 //!
 //! The `--no-pid` flag is necessary to ensure that the `LISTEN_PID` environment
 //! variable is not set or the socket passing will be prevented by the pid check.
-#[cfg(not(windows))]
-extern crate rustix;
-#[cfg(windows)]
-extern crate uuid;
-#[cfg(windows)]
-extern crate winapi;
 
 #[cfg(not(windows))]
 mod unix;

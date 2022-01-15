@@ -5,10 +5,10 @@ use std::net::{TcpListener, UdpSocket};
 use std::os::unix::net::UnixListener;
 
 #[cfg(not(windows))]
-use unix as imp;
+use crate::unix as imp;
 
 #[cfg(windows)]
-use windows as imp;
+use crate::windows as imp;
 
 /// A helper object that gives access to raw file descriptors.
 pub struct ListenFd {
@@ -40,6 +40,7 @@ impl ListenFd {
     ///
     /// Note that even if fds are taken out of the manager this count
     /// does not change.
+    #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> usize {
         self.fds.len()
     }
@@ -99,7 +100,7 @@ impl ListenFd {
     #[cfg(not(windows))]
     pub fn take_raw_fd(&mut self, idx: usize) -> io::Result<Option<imp::FdType>> {
         let _idx = idx;
-        self.with_fd(idx, |fd| Ok(fd))
+        self.with_fd(idx, Ok)
     }
 
     /// Takes the `RawSocket` on windows platforms.
