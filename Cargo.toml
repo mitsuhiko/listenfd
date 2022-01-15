@@ -15,3 +15,8 @@ libc = "0.2.40"
 [target."cfg(windows)".dependencies]
 uuid = "0.8.2"
 winapi = { version = "0.3.4", features = ["winsock2", "processthreadsapi"] }
+
+[dev-dependencies]
+hyper = "0.14.16"
+tokio = { version = "1.15.0", features = ["full"] }
+warp = "0.3.2"
