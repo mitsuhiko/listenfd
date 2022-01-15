@@ -3,6 +3,7 @@
 [![Build Status](https://github.com/mitsuhiko/listenfd/workflows/Tests/badge.svg?branch=master)](https://github.com/mitsuhiko/listenfd/actions?query=workflow%3ATests)
 [![Crates.io](https://img.shields.io/crates/d/listenfd.svg)](https://crates.io/crates/listenfd)
 [![License](https://img.shields.io/github/license/mitsuhiko/listenfd)](https://github.com/mitsuhiko/listenfd/blob/master/LICENSE)
+[![rustc 1.42.0](https://img.shields.io/badge/rust-1.42%2B-orange.svg)](https://img.shields.io/badge/rust-1.42%2B-orange.svg)
 [![Documentation](https://docs.rs/listenfd/badge.svg)](https://docs.rs/listenfd)
 
 listenfd is a crate that provides support for working with externally managed
