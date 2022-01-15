@@ -61,19 +61,16 @@ fn validate_socket(
 
 pub fn make_tcp_listener(fd: FdType) -> io::Result<TcpListener> {
     validate_socket(fd, libc::AF_INET, libc::SOCK_STREAM, "tcp socket")
-        .map(|fd| unsafe { libc::fcntl(fd, libc::F_SETFD, libc::FD_CLOEXEC) })
         .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
 }
 
 pub fn make_unix_listener(fd: FdType) -> io::Result<UnixListener> {
     validate_socket(fd, libc::AF_UNIX, libc::SOCK_STREAM, "unix socket")
-        .map(|fd| unsafe { libc::fcntl(fd, libc::F_SETFD, libc::FD_CLOEXEC) })
         .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
 }
 
 pub fn make_udp_socket(fd: FdType) -> io::Result<UdpSocket> {
     validate_socket(fd, libc::AF_INET, libc::SOCK_DGRAM, "udp socket")
-        .map(|fd| unsafe { libc::fcntl(fd, libc::F_SETFD, libc::FD_CLOEXEC) })
         .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
 }
 
