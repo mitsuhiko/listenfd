@@ -17,7 +17,7 @@ jobs:
       - name: Test
         run: make test
 
-  test-latest:
+  test-windows-latest:
     name: Build on Latest (Windows)
     runs-on: windows-2019
 
