@@ -1,7 +1,9 @@
 # listenfd
 
-<a href="https://travis-ci.com/mitsuhiko/rust-listenfd"><img src="https://travis-ci.com/mitsuhiko/rust-listenfd.svg?branch=master" alt=""></a>
-<a href="https://crates.io/crates/listenfd"><img src="https://img.shields.io/crates/v/listenfd.svg" alt=""></a>
+[![Build Status](https://github.com/mitsuhiko/listenfd/workflows/Tests/badge.svg?branch=master)](https://github.com/mitsuhiko/listenfd/actions?query=workflow%3ATests)
+[![Crates.io](https://img.shields.io/crates/d/listenfd.svg)](https://crates.io/crates/listenfd)
+[![License](https://img.shields.io/github/license/mitsuhiko/listenfd)](https://github.com/mitsuhiko/listenfd/blob/master/LICENSE)
+[![Documentation](https://docs.rs/listenfd/badge.svg)](https://docs.rs/listenfd)
 
 listenfd is a crate that provides support for working with externally managed
 and passed file descriptors. This lets you work with systems that support
@@ -15,7 +17,6 @@ purposes whereas systemd is useful for production deployments on linux.
 ## Example
 
 ```rust
-extern crate listenfd;
 use listenfd::ListenFd;
 
 let mut listenfd = ListenFd::from_env();
@@ -34,9 +35,16 @@ You can then use this with cargo watch and systemfd:
 
 ```
 $ cargo install systemfd cargo-watch
-systemfd --no-pid -p 3000 -- cargo watch -x run
+systemfd --no-pid -s http::3000 -- cargo watch -x run
 ```
 
 Now systemfd will open the socket and keep it open. cargo watch will recompile
 the code on demand and the server will pick up the socket that systemfd opened.
 No more connection resets.
+
+## License and Links
+
+- [Documentation](https://docs.rs/listenfd/)
+- [Issue Tracker](https://github.com/mitsuhiko/listenfd/issues)
+- [Examples](https://github.com/mitsuhiko/listenfd/tree/main/examples)
+- License: [Apache-2.0](https://github.com/mitsuhiko/listenfd/blob/main/LICENSE)
