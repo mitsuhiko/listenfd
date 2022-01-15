@@ -18,7 +18,7 @@ jobs:
         run: make test
 
   test-latest:
-    name: Test on Latest (Windows)
+    name: Build on Latest (Windows)
     runs-on: windows-2019
 
     steps:
@@ -28,11 +28,11 @@ jobs:
           toolchain: stable
           profile: minimal
           override: true
-      - name: Test
-        run: make test
+      - name: Build
+        run: cargo check
 
   test-stable:
-    name: Test on 1.42.0
+    name: Build on 1.42.0
     runs-on: ubuntu-latest
 
     steps:
@@ -42,5 +42,5 @@ jobs:
           toolchain: 1.42.0
           profile: minimal
           override: true
-      - name: Test
-        run: make test
+      - name: Build
+        run: cargo check
