@@ -17,6 +17,20 @@ jobs:
       - name: Test
         run: make test
 
+  test-latest:
+    name: Test on Latest (Windows)
+    runs-on: windows-2019
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      - name: Test
+        run: make test
+
   test-stable:
     name: Test on 1.42.0
     runs-on: ubuntu-latest
