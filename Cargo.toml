@@ -10,7 +10,7 @@ license = "MIT/Apache-2.0"
 edition = "2018"
 
 [target."cfg(not(windows))".dependencies]
-rustix = "0.31.3"
+libc = "0.2.40"
 
 [target."cfg(windows)".dependencies]
 uuid = "0.8.2"

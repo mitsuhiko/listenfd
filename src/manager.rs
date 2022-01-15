@@ -45,7 +45,7 @@ impl ListenFd {
         self.fds.len()
     }
 
-    fn with_fd<R, F: FnOnce(imp::FdType) -> Result<R, (io::Error, imp::FdType)>>(
+    fn with_fd<R, F: FnOnce(imp::FdType) -> io::Result<R>>(
         &mut self,
         idx: usize,
         f: F,
@@ -54,11 +54,9 @@ impl ListenFd {
             Some(None) | None => return Ok(None),
             Some(bucket) => bucket,
         };
-        // Take the `fd` out and pass it to `f`.
-        f(bucket.take().unwrap()).map(Some).map_err(|(err, fd)| {
-            // `f` failed; put the `fd` back in.
-            bucket.get_or_insert(fd);
-            err
+        f(*bucket.as_ref().unwrap()).map(|rv| {
+            bucket.take();
+            Some(rv)
         })
     }
 
