@@ -59,18 +59,36 @@ fn validate_socket(
     Ok(fd)
 }
 
+fn mark_cloexec(fd: i32) -> io::Result<i32> {
+    let rv = unsafe { libc::fcntl(fd, libc::F_SETFD, libc::FD_CLOEXEC) };
+    if rv < 0 {
+        return Err(io::Error::new(
+            io::ErrorKind::Other,
+            format!(
+                "fd {} cannot be marked as FD_CLOEXEC ({})",
+                fd,
+                io::Error::last_os_error()
+            ),
+        ));
+    }
+    Ok(fd)
+}
+
 pub fn make_tcp_listener(fd: FdType) -> io::Result<TcpListener> {
     validate_socket(fd, libc::AF_INET, libc::SOCK_STREAM, "tcp socket")
+        .and_then(mark_cloexec)
         .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
 }
 
 pub fn make_unix_listener(fd: FdType) -> io::Result<UnixListener> {
     validate_socket(fd, libc::AF_UNIX, libc::SOCK_STREAM, "unix socket")
+        .and_then(mark_cloexec)
         .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
 }
 
 pub fn make_udp_socket(fd: FdType) -> io::Result<UdpSocket> {
     validate_socket(fd, libc::AF_INET, libc::SOCK_DGRAM, "udp socket")
+        .and_then(mark_cloexec)
         .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
 }
 
