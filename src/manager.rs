@@ -2,7 +2,7 @@ use std::io;
 use std::net::{TcpListener, UdpSocket};
 
 #[cfg(not(windows))]
-use std::os::unix::net::UnixListener;
+use std::os::unix::net::{UnixDatagram, UnixListener};
 
 #[cfg(not(windows))]
 use crate::unix as imp;
@@ -92,6 +92,19 @@ impl ListenFd {
     pub fn take_udp_socket(&mut self, idx: usize) -> io::Result<Option<UdpSocket>> {
         let _idx = idx;
         self.with_fd(idx, imp::make_udp_socket)
+    }
+
+    /// Takes the UNIX datagram socket at an index.
+    ///
+    /// If the given index has been used before `Ok(None)` is returned,
+    /// otherwise the fd at that index is returned as `UnixDatagram`.  If
+    /// the fd at that position is not a UNIX datagram socket then an error is
+    /// returned and the fd is left at its place.
+    ///
+    /// This function is only available on unix platforms.
+    #[cfg(not(windows))]
+    pub fn take_unix_datagram(&mut self, idx: usize) -> io::Result<Option<UnixDatagram>> {
+        self.with_fd(idx, imp::make_unix_datagram)
     }
 
     /// Takes the `RawFd` on unix platforms.
