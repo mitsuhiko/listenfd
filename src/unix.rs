@@ -98,6 +98,17 @@ pub fn make_unix_datagram(fd: FdType) -> io::Result<UnixDatagram> {
         .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
 }
 
+pub fn make_custom<T: FromRawFd>(
+    fd: FdType,
+    sock_fam: libc::c_int,
+    sock_type: libc::c_int,
+    hint: &str,
+) -> io::Result<T> {
+    validate_socket(fd, sock_fam, sock_type, hint)
+        .and_then(mark_cloexec)
+        .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
+}
+
 pub fn get_fds() -> Option<Vec<FdType>> {
     // modified systemd protocol
     if let Some(count) = env::var("LISTEN_FDS").ok().and_then(|x| x.parse().ok()) {

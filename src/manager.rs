@@ -107,6 +107,28 @@ impl ListenFd {
         self.with_fd(idx, imp::make_unix_datagram)
     }
 
+    /// Takes a custom socket on unix platforms.
+    ///
+    /// You have to provide a socket family, socket type, and a hint
+    /// for the validation error, e.g.
+    /// `libc::AF_UNIX, libc::SOCK_SEQPACKET, "unix seqpacket socket"`.
+    ///
+    /// The file descriptor will be validated to actually be a socket
+    /// with the appropriate options, set as CLOEXEC, and converted to
+    /// the given Rust type using `FromRawFd`.
+    ///
+    /// This function is only available on unix platforms.
+    #[cfg(not(windows))]
+    pub fn take_custom<T: std::os::unix::prelude::FromRawFd>(
+        &mut self,
+        idx: usize,
+        sock_fam: libc::c_int,
+        sock_type: libc::c_int,
+        hint: &str,
+    ) -> io::Result<Option<T>> {
+        self.with_fd(idx, |fd| imp::make_custom(fd, sock_fam, sock_type, hint))
+    }
+
     /// Takes the `RawFd` on unix platforms.
     #[cfg(not(windows))]
     pub fn take_raw_fd(&mut self, idx: usize) -> io::Result<Option<imp::FdType>> {
