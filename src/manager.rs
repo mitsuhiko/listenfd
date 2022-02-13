@@ -64,17 +64,17 @@ impl ListenFd {
     ///
     /// If the given index has been used before `Ok(None)` is returned,
     /// otherwise the fd at that index is returned as `TcpListener`.  If
-    /// the fd at that position is not a tcp socket then an error is
+    /// the fd at that position is not a TCP socket then an error is
     /// returned and the fd is left at its place.
     pub fn take_tcp_listener(&mut self, idx: usize) -> io::Result<Option<TcpListener>> {
         self.with_fd(idx, imp::make_tcp_listener)
     }
 
-    /// Takes the UNIX listener at an index.
+    /// Takes the UNIX stream listener at an index.
     ///
     /// If the given index has been used before `Ok(None)` is returned,
     /// otherwise the fd at that index is returned as `UnixListener`.  If
-    /// the fd at that position is not a tcp socket then an error is
+    /// the fd at that position is not a UNIX stream socket then an error is
     /// returned and the fd is left at its place.
     ///
     /// This function is only available on unix platforms.
@@ -87,7 +87,7 @@ impl ListenFd {
     ///
     /// If the given index has been used before `Ok(None)` is returned,
     /// otherwise the fd at that index is returned as `UdpSocket`.  If
-    /// the fd at that position is not a tcp socket then an error is
+    /// the fd at that position is not a UDP socket then an error is
     /// returned and the fd is left at its place.
     pub fn take_udp_socket(&mut self, idx: usize) -> io::Result<Option<UdpSocket>> {
         let _idx = idx;
