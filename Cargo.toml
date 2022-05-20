@@ -13,7 +13,7 @@ edition = "2018"
 libc = "0.2.40"
 
 [target."cfg(windows)".dependencies]
-uuid = "0.8.2"
+uuid = "1.0.0"
 winapi = { version = "0.3.4", features = ["winsock2", "processthreadsapi"] }
 
 [dev-dependencies]
