@@ -3,7 +3,7 @@ use std::io;
 use std::mem;
 use std::net::{TcpListener, UdpSocket};
 use std::os::unix::io::{FromRawFd, RawFd};
-use std::os::unix::net::UnixListener;
+use std::os::unix::net::{UnixDatagram, UnixListener};
 
 use libc;
 
@@ -81,13 +81,30 @@ pub fn make_tcp_listener(fd: FdType) -> io::Result<TcpListener> {
 }
 
 pub fn make_unix_listener(fd: FdType) -> io::Result<UnixListener> {
-    validate_socket(fd, libc::AF_UNIX, libc::SOCK_STREAM, "unix socket")
+    validate_socket(fd, libc::AF_UNIX, libc::SOCK_STREAM, "unix stream socket")
         .and_then(mark_cloexec)
         .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
 }
 
 pub fn make_udp_socket(fd: FdType) -> io::Result<UdpSocket> {
     validate_socket(fd, libc::AF_INET, libc::SOCK_DGRAM, "udp socket")
+        .and_then(mark_cloexec)
+        .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
+}
+
+pub fn make_unix_datagram(fd: FdType) -> io::Result<UnixDatagram> {
+    validate_socket(fd, libc::AF_UNIX, libc::SOCK_DGRAM, "unix datagram socket")
+        .and_then(mark_cloexec)
+        .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
+}
+
+pub fn make_custom<T: FromRawFd>(
+    fd: FdType,
+    sock_fam: libc::c_int,
+    sock_type: libc::c_int,
+    hint: &str,
+) -> io::Result<T> {
+    validate_socket(fd, sock_fam, sock_type, hint)
         .and_then(mark_cloexec)
         .map(|fd| unsafe { FromRawFd::from_raw_fd(fd) })
 }

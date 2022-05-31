@@ -2,7 +2,7 @@ use std::io;
 use std::net::{TcpListener, UdpSocket};
 
 #[cfg(not(windows))]
-use std::os::unix::net::UnixListener;
+use std::os::unix::net::{UnixDatagram, UnixListener};
 
 #[cfg(not(windows))]
 use crate::unix as imp;
@@ -64,17 +64,17 @@ impl ListenFd {
     ///
     /// If the given index has been used before `Ok(None)` is returned,
     /// otherwise the fd at that index is returned as `TcpListener`.  If
-    /// the fd at that position is not a tcp socket then an error is
+    /// the fd at that position is not a TCP socket then an error is
     /// returned and the fd is left at its place.
     pub fn take_tcp_listener(&mut self, idx: usize) -> io::Result<Option<TcpListener>> {
         self.with_fd(idx, imp::make_tcp_listener)
     }
 
-    /// Takes the UNIX listener at an index.
+    /// Takes the UNIX stream listener at an index.
     ///
     /// If the given index has been used before `Ok(None)` is returned,
     /// otherwise the fd at that index is returned as `UnixListener`.  If
-    /// the fd at that position is not a tcp socket then an error is
+    /// the fd at that position is not a UNIX stream socket then an error is
     /// returned and the fd is left at its place.
     ///
     /// This function is only available on unix platforms.
@@ -87,11 +87,46 @@ impl ListenFd {
     ///
     /// If the given index has been used before `Ok(None)` is returned,
     /// otherwise the fd at that index is returned as `UdpSocket`.  If
-    /// the fd at that position is not a tcp socket then an error is
+    /// the fd at that position is not a UDP socket then an error is
     /// returned and the fd is left at its place.
     pub fn take_udp_socket(&mut self, idx: usize) -> io::Result<Option<UdpSocket>> {
         let _idx = idx;
         self.with_fd(idx, imp::make_udp_socket)
+    }
+
+    /// Takes the UNIX datagram socket at an index.
+    ///
+    /// If the given index has been used before `Ok(None)` is returned,
+    /// otherwise the fd at that index is returned as `UnixDatagram`.  If
+    /// the fd at that position is not a UNIX datagram socket then an error is
+    /// returned and the fd is left at its place.
+    ///
+    /// This function is only available on unix platforms.
+    #[cfg(not(windows))]
+    pub fn take_unix_datagram(&mut self, idx: usize) -> io::Result<Option<UnixDatagram>> {
+        self.with_fd(idx, imp::make_unix_datagram)
+    }
+
+    /// Takes a custom socket on unix platforms.
+    ///
+    /// You have to provide a socket family, socket type, and a hint
+    /// for the validation error, e.g.
+    /// `libc::AF_UNIX, libc::SOCK_SEQPACKET, "unix seqpacket socket"`.
+    ///
+    /// The file descriptor will be validated to actually be a socket
+    /// with the appropriate options, set as CLOEXEC, and converted to
+    /// the given Rust type using `FromRawFd`.
+    ///
+    /// This function is only available on unix platforms.
+    #[cfg(not(windows))]
+    pub fn take_custom<T: std::os::unix::prelude::FromRawFd>(
+        &mut self,
+        idx: usize,
+        sock_fam: libc::c_int,
+        sock_type: libc::c_int,
+        hint: &str,
+    ) -> io::Result<Option<T>> {
+        self.with_fd(idx, |fd| imp::make_custom(fd, sock_fam, sock_type, hint))
     }
 
     /// Takes the `RawFd` on unix platforms.
