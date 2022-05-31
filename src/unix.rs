@@ -5,8 +5,6 @@ use std::net::{TcpListener, UdpSocket};
 use std::os::unix::io::{FromRawFd, RawFd};
 use std::os::unix::net::{UnixDatagram, UnixListener};
 
-use libc;
-
 pub type FdType = RawFd;
 
 fn is_sock(fd: FdType) -> bool {
