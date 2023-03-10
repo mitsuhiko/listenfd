@@ -116,10 +116,12 @@ pub fn get_fds() -> Option<Vec<FdType>> {
             _ => false,
         };
 
+        let first_fd = env::var("LISTEN_FDS_FIRST_FD").ok().and_then(|x| x.parse().ok()).unwrap_or(3);
+
         env::remove_var("LISTEN_PID");
         env::remove_var("LISTEN_FDS");
         if ok {
-            return Some((0..count).map(|offset| 3 + offset as FdType).collect());
+            return Some((0..count).map(|offset| first_fd + offset as FdType).collect());
         }
     }
 
