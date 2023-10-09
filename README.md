@@ -10,7 +10,7 @@ listenfd is a crate that provides support for working with externally managed
 and passed file descriptors. This lets you work with systems that support
 socket activation or similar.
 
-Currently this supports systemd on Unix and
+Currently this supports systemd (including systemd-socket-activate) on Unix and
 [systemfd](https://github.com/mitsuhiko/systemfd) on Unix and Windows.
 systemfd is very convenient in combination with cargo-watch for development
 purposes whereas systemd is useful for production deployments on linux.
