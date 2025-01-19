@@ -8,12 +8,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-          profile: minimal
-          override: true
+      - uses: Swatinem/rust-cache@v2
       - name: Test
         run: make test
 
@@ -22,12 +21,11 @@ jobs:
     runs-on: windows-2019
 
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-          profile: minimal
-          override: true
+      - uses: Swatinem/rust-cache@v2
       - name: Build
         run: cargo check
 
@@ -36,11 +34,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: 1.42.0
-          profile: minimal
-          override: true
+      - uses: Swatinem/rust-cache@v2
+      - name: Restore Cargo.lock
+        run: cp Cargo.lock.msrv Cargo.lock
       - name: Build
         run: cargo check
