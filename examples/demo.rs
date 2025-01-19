@@ -22,9 +22,7 @@ async fn main() {
     // a `hyper::service::MakeService` for use with a `hyper::server::Server`.
     let svc = warp::service(routes);
 
-    let make_svc = hyper::service::make_service_fn(|_: _| {
-        async move { Ok::<_, Infallible>(svc) }
-    });
+    let make_svc = hyper::service::make_service_fn(|_: _| async move { Ok::<_, Infallible>(svc) });
 
     let mut listenfd = ListenFd::from_env();
     // if listenfd doesn't take a TcpListener (i.e. we're not running via
