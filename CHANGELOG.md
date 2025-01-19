@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+* Maintenance release with readme fixes.
+
 ## 1.0.1
 
 * Added support for overriding the first fd (`LISTEN_FDS_FIRST_FD`). (#15)

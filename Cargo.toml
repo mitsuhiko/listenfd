@@ -1,11 +1,11 @@
 [package]
 name = "listenfd"
-version = "1.0.1"
+version = "1.0.2"
 authors = ["Armin Ronacher <armin.ronacher@active-4.com>"]
 description = "A simple library to work with listenfds passed from the outside (systemd/catflap socket activation)"
 keywords = ["socket", "listenfd", "systemd", "socketactivation"]
 categories = [ "os::unix-apis" ]
-homepage = "https://github.com/mitsuhiko/rust-listenfd"
+homepage = "https://github.com/mitsuhiko/listenfd"
 readme = "README.md"
 license = "Apache-2.0"
 edition = "2018"
