@@ -1,0 +1,10 @@
+[package]
+name = "warp-demo"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hyper = "0.14.16"
+tokio = { version = "1.15.0", features = ["full"] }
+warp = "0.3.2"
+listenfd = { path = "../.." }

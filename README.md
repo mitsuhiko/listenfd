@@ -11,8 +11,10 @@ socket activation or similar.
 
 Currently this supports systemd (including systemd-socket-activate) on Unix and
 [systemfd](https://github.com/mitsuhiko/systemfd) on Unix and Windows.
-systemfd is very convenient in combination with cargo-watch for development
-purposes whereas systemd is useful for production deployments on linux.
+systemfd is very convenient in combination with
+[cargo-watch](https://github.com/watchexec/cargo-watch) or
+[watchexec](https://github.com/watchexec/watchexec) for development purposes
+whereas systemd is useful for production deployments on linux.
 
 ## Example
 
@@ -31,11 +33,11 @@ server = if let Some(listener) = listenfd.take_tcp_listener(0)? {
 };
 ```
 
-You can then use this with cargo watch and systemfd:
+You can then use this with `cargo-watch` or `watchexec` and `systemfd`:
 
 ```
-$ cargo install systemfd cargo-watch
-systemfd --no-pid -s http::3000 -- cargo watch -x run
+$ systemfd --no-pid -s http::3000 -- cargo watch -x run
+$ systemfd --no-pid -s http::3000 -- watchexec -r -- cargo run
 ```
 
 Now systemfd will open the socket and keep it open. cargo watch will recompile
