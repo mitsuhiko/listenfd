@@ -121,8 +121,6 @@ pub fn get_fds() -> Option<Vec<FdType>> {
             .and_then(|x| x.parse().ok())
             .unwrap_or(3);
 
-        env::remove_var("LISTEN_PID");
-        env::remove_var("LISTEN_FDS");
         if ok {
             return Some(
                 (0..count)
